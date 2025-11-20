@@ -37,7 +37,7 @@ func (g *Generator) Encode(number int64) string {
 	// Reverse the string since we constructed it backwards
 	encoded := results.String()
 	runes := []rune(encoded)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j+1 {
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
 
