@@ -18,7 +18,7 @@ import (
 // ----------------------------------------------------------------------------------------
 
 type PostgresRepository interface {
-	Insert(ctx context.Context, shortCode, longURL string) (*domain.URL, error)
+	Create(ctx context.Context, shortCode, longURL string) (*domain.URL, error)
 	GetByShortCode(ctx context.Context, shortCode string) (*domain.URL, error)
 	IncrementClicksCounter(ctx context.Context, shortCode string) error
 	GetNextID(ctx context.Context) (int64, error)
@@ -160,7 +160,7 @@ func (s *ShortenerService) createShortURLWithRetries(ctx context.Context,
 
 	shortCode := s.generator.Encode(id)
 
-	url, err := s.pgRepo.Insert(ctx, shortCode, longURL)
+	url, err := s.pgRepo.Create(ctx, shortCode, longURL)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			log.Warn().Str("short_code", shortCode).Msg("collision detected, retrying")
