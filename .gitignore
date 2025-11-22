@@ -29,3 +29,5 @@ yarn-error.log*
 
 # Runtime data
 pids
+
+/config/config.yml

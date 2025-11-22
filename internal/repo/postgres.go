@@ -30,8 +30,8 @@ func NewPostgresRepo(pool *pgxpool.Pool) *PostgresRepo {
 	}
 }
 
-// Insert inserts a new URL mapping into the database.
-func (r *PostgresRepo) Insert(ctx context.Context, shortCode, longURL string) (*domain.URL, error) {
+// Create inserts a new URL mapping into the database.
+func (r *PostgresRepo) Create(ctx context.Context, shortCode, longURL string) (*domain.URL, error) {
 
 	if !validator.IsValidShortCode(shortCode) {
 		return nil, ErrInvalidShortCode
