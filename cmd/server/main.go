@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/Elisandil/GoSnap/internal/api"
@@ -17,18 +17,16 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 )
 
 func main() {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	log.Logger = log.Output(zerolog.ConsoleWriter{
-		Out: os.Stderr,
-	})
+	logLevel := getEnv("LOG_LEVEL")
+	logFormat := getEnv("LOG_FORMAT")
 
-	// Load configuration
-	if err := loadConfig(); err != nil {
-		log.Fatal().Err(err).Msg("error loading config")
+	setupLogger(logLevel, logFormat)
+
+	if err := validateConfig(); err != nil {
+		log.Fatal().Err(err).Msg("configuration validation failed")
 	}
 
 	// Connect to Postgres
@@ -43,7 +41,7 @@ func main() {
 	defer func(redisClient *redis.Client) {
 		err := redisClient.Close()
 		if err != nil {
-
+			log.Error().Err(err).Msg("error closing Redis client")
 		}
 	}(redisClient)
 
@@ -62,7 +60,7 @@ func main() {
 	pgRepo := repo.NewPostgresRepo(pgPool)
 	redisRepo := repo.NewRedisRepo(redisClient, 24*time.Hour)
 	generator := shortid.NewGenerator()
-	baseURL := viper.GetString("server.base_url")
+	baseURL := getEnv("SERVER_BASE_URL")
 	shortenerService := service.NewShortenerService(pgRepo, redisRepo, generator, baseURL)
 	handler := api.NewHandler(shortenerService)
 
@@ -71,11 +69,11 @@ func main() {
 	e.HideBanner = true
 	api.SetupRoutes(e, handler)
 
-	port := viper.GetString("server.port")
+	port := getEnv("SERVER_PORT")
 	go func() {
-		log.Info().Str("port", port).Msg("starting the server")
+		log.Info().Str("port", port).Str("base_url", baseURL).Msg("starting the server")
 		if err := e.Start(":" + port); err != nil {
-			log.Error().Err(err).Msg("error starting the server")
+			log.Error().Err(err).Msg("server error")
 		}
 	}()
 
@@ -98,56 +96,92 @@ func main() {
 //                                    PRIVATE FUNCTIONS
 // ---------------------------------------------------------------------------------------
 
-// loadConfig loads the configuration from file and environment variables.
-func loadConfig() error {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath("./config")
-	viper.AddConfigPath(".")
+// getEnv retrieves the value of the environment variable named by the key.
+func getEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatal().Msgf("environment variable %s is not set", key)
+	}
+	return value
+}
 
-	viper.SetDefault("server.port", 8080)
-	viper.SetDefault("server.base_url", "http://localhost")
-	viper.SetDefault("postgres.host", "localhost")
-	viper.SetDefault("postgres.port", "5432")
-	viper.SetDefault("postgres.user", "postgres")
-	viper.SetDefault("postgres.password", "postgres")
-	viper.SetDefault("postgres.database", "url_shortener")
-	viper.SetDefault("redis.host", "localhost")
-	viper.SetDefault("redis.port", "6379")
-	viper.SetDefault("redis.password", "")
-	viper.SetDefault("redis.db", 0)
+// getEnvAsInt retrieves the value of the environment variable named by the key and converts it to an integer.
+func getEnvAsInt(key string) int {
+	valueStr := os.Getenv(key)
+	if valueStr == "" {
+		log.Fatal().Msgf("environment variable %s is not set", key)
+	}
 
-	viper.AutomaticEnv()
+	value, err := strconv.Atoi(valueStr)
+	if err != nil {
+		log.Fatal().Msgf("environment variable %s must be an integer", key)
+	}
+	return value
+}
 
-	if err := viper.ReadInConfig(); err != nil {
-		var configFileNotFoundError viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundError) {
-			log.Warn().Msg("Config file not found; using default values and environment variables")
-			return nil
+// validateConfig checks for the presence of required environment variables.
+func validateConfig() error {
+	requiredKeys := []string{
+		"POSTGRES_HOST",
+		"POSTGRES_PORT",
+		"POSTGRES_USER",
+		"POSTGRES_PASSWORD",
+		"POSTGRES_DATABASE",
+		"REDIS_HOST",
+		"REDIS_PORT",
+	}
+
+	for _, key := range requiredKeys {
+		if os.Getenv(key) == "" {
+			return fmt.Errorf("missing required environment variable: %s", key)
 		}
-		return err
 	}
 
 	return nil
 }
 
-// connectPostgres establishes a connection pool to the PostgreSQL database.
-// It returns the connection pool or an error if the connection fails.
+// setupLogger configures the global logger based on environment variables.
+func setupLogger(level, format string) {
+	switch level {
+	case "debug":
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case "info":
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	case "warn":
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	case "error":
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
+
+	if format == "console" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{
+			Out:        os.Stderr,
+			TimeFormat: time.RFC3339,
+		})
+	} else {
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	}
+}
+
+// connectPostgres establishes a connection to the Postgres database.
 func connectPostgres() (*pgxpool.Pool, error) {
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbanme=%s sslmode=disable",
-		viper.GetString("postgres.host"),
-		viper.GetString("postgres.port"),
-		viper.GetString("postgres.user"),
-		viper.GetString("postgres.password"),
-		viper.GetString("postgres.database"),
+	connStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		getEnv("POSTGRES_HOST"),
+		getEnv("POSTGRES_PORT"),
+		getEnv("POSTGRES_USER"),
+		getEnv("POSTGRES_PASSWORD"),
+		getEnv("POSTGRES_DATABASE"),
 	)
 
-	config, err := pgxpool.ParseConfig(connectionString)
+	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		return nil, err
 	}
-	config.MaxConns = 25
-	config.MinConns = 1
+	config.MaxConns = int32(getEnvAsInt("POSTGRES_MAX_CONNECTIONS"))
+	config.MinConns = int32(getEnvAsInt("POSTGRES_MIN_CONNECTIONS"))
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
@@ -158,11 +192,11 @@ func connectPostgres() (*pgxpool.Pool, error) {
 }
 
 // connectRedis establishes a connection to the Redis server.
-// It returns the Redis client.
 func connectRedis() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", viper.GetString("redis.host"), viper.GetString("redis.port")),
-		Password: viper.GetString("redis.password"),
-		DB:       viper.GetInt("redis.db"),
+		Addr:     fmt.Sprintf("%s:%s", getEnv("REDIS_HOST"), getEnv("REDIS_PORT")),
+		Password: getEnv("REDIS_PASSWORD"),
+		DB:       getEnvAsInt("REDIS_DB"),
+		PoolSize: getEnvAsInt("REDIS_POOL_SIZE"),
 	})
 }
