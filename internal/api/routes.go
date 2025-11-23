@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,6 +28,9 @@ func SetupRoutes(e *echo.Echo, handler *Handler) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Timeout: 30 * time.Second,
+	}))
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(100)))
 
 	e.GET("/health", handler.HealthCheck)
@@ -36,5 +41,4 @@ func SetupRoutes(e *echo.Echo, handler *Handler) {
 		api.POST("/shorten", handler.CreateShortURL)
 		api.GET("/stats/:shortCode", handler.GetStats)
 	}
-
 }
