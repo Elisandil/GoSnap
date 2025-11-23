@@ -36,11 +36,12 @@ type RedisRepository interface {
 // ----------------------------------------------------------------------------------------
 
 type ShortenerService struct {
-	pgRepo     PostgresRepository
-	redisRepo  RedisRepository
-	generator  *shortid.Generator
-	baseURL    string
-	maxRetries int
+	pgRepo       PostgresRepository
+	redisRepo    RedisRepository
+	generator    *shortid.Generator
+	baseURL      string
+	maxRetries   int
+	clickWorkers chan struct{}
 }
 
 func NewShortenerService(pgRepo PostgresRepository,
@@ -49,11 +50,12 @@ func NewShortenerService(pgRepo PostgresRepository,
 	baseURL string) *ShortenerService {
 
 	return &ShortenerService{
-		pgRepo:     pgRepo,
-		redisRepo:  redisRepo,
-		generator:  generator,
-		baseURL:    baseURL,
-		maxRetries: 3,
+		pgRepo:       pgRepo,
+		redisRepo:    redisRepo,
+		generator:    generator,
+		baseURL:      baseURL,
+		maxRetries:   3,
+		clickWorkers: make(chan struct{}, 100),
 	}
 }
 
@@ -187,13 +189,19 @@ func (s *ShortenerService) createShortURLWithRetries(ctx context.Context,
 // It runs the increment operation in a separate goroutine with a timeout context.
 // If there is an error incrementing the counter, it logs a warning.
 func (s *ShortenerService) incrementClicksAsync(shortCode string) {
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
 
-		if err := s.pgRepo.IncrementClicksCounter(ctx, shortCode); err != nil {
-			log.Warn().Err(err).Str("short_code", shortCode).Msg("error incrementing clicks counter in " +
-				"background")
-		}
-	}()
+	select {
+	case s.clickWorkers <- struct{}{}:
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			if err := s.pgRepo.IncrementClicksCounter(ctx, shortCode); err != nil {
+				log.Warn().Err(err).Str("short_code", shortCode).Msg("error incrementing clicks counter in " +
+					"background")
+			}
+		}()
+	default:
+		log.Warn().Msg("click workers limit reached, skipping increment")
+	}
 }
