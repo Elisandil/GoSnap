@@ -1,22 +1,28 @@
 package api
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/Elisandil/GoSnap/internal/domain"
-	"github.com/Elisandil/GoSnap/internal/service"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type Handler struct {
-	service *service.ShortenerService
+	service ShortenerServiceInterface
 }
 
-func NewHandler(service *service.ShortenerService) *Handler {
+func NewHandler(service ShortenerServiceInterface) *Handler {
 	return &Handler{
 		service: service,
 	}
+}
+
+type ShortenerServiceInterface interface {
+	CreateShortURL(ctx context.Context, longURL string) (*domain.CreateURLResponse, error)
+	GetLongURL(ctx context.Context, shortCode string) (string, error)
+	GetURLStats(ctx context.Context, shortCode string) (*domain.StatsResponse, error)
 }
 
 // CreateShortURL handles the creation of a new short URL.
