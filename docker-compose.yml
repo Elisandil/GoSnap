@@ -19,6 +19,20 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-test:
+    image: postgres
+    container_name: url_shortener_db_test
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_TEST_DATABASE}
+    ports:
+      - "${POSTGRES_TEST_PORT}:5432"
+    volumes:
+      - ./resources/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+
   redis:
     image: redis
     container_name: url_shortener_redis
@@ -34,6 +48,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis-test:
+    image: redis
+    container_name: url_shortener_redis_test
+    command: [ "redis-server"]
+    ports:
+      - "${REDIS_TEST_PORT}:6379"
 
   app:
     build: .
