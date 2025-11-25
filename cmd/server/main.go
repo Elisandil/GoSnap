@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/Elisandil/GoSnap/internal/service"
 	"github.com/Elisandil/GoSnap/internal/shortid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
@@ -20,6 +21,11 @@ import (
 )
 
 func main() {
+
+	if err := godotenv.Load(); err != nil {
+		log.Warn().Msg("no .env file found, relying on environment variables")
+	}
+
 	logLevel := getEnv("LOG_LEVEL")
 	logFormat := getEnv("LOG_FORMAT")
 
