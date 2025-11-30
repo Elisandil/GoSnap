@@ -15,7 +15,7 @@ func main() {
 
 	log.Info().Msg("Starting GoSnap Desktop Application")
 
-	a := app.NewWithID("com.elisandil.gosnap")
+	a := app.NewWithID("com.elisandil.gosnap.test")
 	a.Settings().SetTheme(&ui.CustomTheme{})
 
 	mainWindow := ui.NewMainWindow(a)

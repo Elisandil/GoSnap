@@ -37,7 +37,6 @@ func (t *CreateTab) Build() fyne.CanvasObject {
 	form := container.NewVBox(
 		widget.NewCard("Create Short URL", "Enter the long URL you want to shorten", container.NewVBox(
 			t.urlEntry,
-			layout.NewSpacer(),
 			t.shortenBtn,
 		)),
 		t.resultCard,
@@ -113,15 +112,17 @@ func (t *CreateTab) handleShorten() {
 			return
 		}
 
-		t.shortURLLabel.SetText(result.ShortURL)
-		t.resultCard.Show()
-		if t.onCreated != nil {
-			t.onCreated(result.ShortCode)
-		}
-		t.shortenBtn.Enable()
-		t.shortenBtn.SetText("Shorten URL")
+		fyne.Do(func() {
+			t.shortURLLabel.SetText(result.ShortURL)
+			t.resultCard.Show()
+			if t.onCreated != nil {
+				t.onCreated(result.ShortCode)
+			}
+			t.shortenBtn.Enable()
+			t.shortenBtn.SetText("Shorten URL")
 
-		ShowSuccessDialog(fyne.CurrentApp().Driver().AllWindows()[0], "URL shortened successfully!")
+			ShowSuccessDialog(fyne.CurrentApp().Driver().AllWindows()[0], "URL shortened successfully!")
+		})
 	}()
 }
 

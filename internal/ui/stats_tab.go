@@ -5,7 +5,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/rs/zerolog/log"
 )
@@ -54,7 +53,6 @@ func (t *StatsTab) createSearchForm() *widget.Card {
 	return widget.NewCard("Search Statistics", "Enter a short code to view its statistics",
 		container.NewVBox(
 			t.shortCodeEntry,
-			layout.NewSpacer(),
 			t.searchBtn,
 		),
 	)
@@ -101,10 +99,12 @@ func (t *StatsTab) handleGetStats() {
 			return
 		}
 
-		t.displayStats(stats.ShortCode, stats.LongURL, stats.Clicks, stats.CreatedAt.Format("02/01/2006 15:04:05"))
+		fyne.Do(func() {
+			t.displayStats(stats.ShortCode, stats.LongURL, stats.Clicks, stats.CreatedAt.Format("02/01/2006 15:04:05"))
 
-		t.searchBtn.Enable()
-		t.searchBtn.SetText("Get Statistics")
+			t.searchBtn.Enable()
+			t.searchBtn.SetText("Get Statistics")
+		})
 	}()
 }
 

@@ -62,9 +62,9 @@ func (t *CustomTheme) Size(name fyne.ThemeSizeName) float32 {
 
 	switch name {
 	case theme.SizeNamePadding:
-		return 12
+		return 4
 	case theme.SizeNameInnerPadding:
-		return 8
+		return 4
 	}
 
 	return theme.DefaultTheme().Size(name)

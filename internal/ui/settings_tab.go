@@ -3,7 +3,6 @@ package ui
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/rs/zerolog/log"
 )
@@ -93,7 +92,6 @@ func (t *SettingsTab) createServerCard() *widget.Card {
 	return widget.NewCard("Server Configuration", "Configure the GoSnap server URL",
 		container.NewVBox(
 			settingsForm,
-			layout.NewSpacer(),
 			buttons,
 			t.statusLabel,
 		),
@@ -107,7 +105,6 @@ func (t *SettingsTab) createInfoCard() *widget.Card {
 			widget.NewLabel("GoSnap Desktop Client"),
 			widget.NewLabel("Version: 1.0.0"),
 			widget.NewLabel("A modern URL shortener application"),
-			layout.NewSpacer(),
 			widget.NewHyperlink("GitHub Repository", parseURL("https://github.com/Elisandil/GoSnap")),
 		),
 	)
@@ -136,16 +133,18 @@ func (t *SettingsTab) handleTest() {
 	go func() {
 		err := t.client.HealthCheck()
 
-		if err != nil {
-			log.Error().Err(err).Msg("Health check failed")
-			t.statusLabel.SetText("✗ Connection failed: " + err.Error())
-			ShowErrorDialog(fyne.CurrentApp().Driver().AllWindows()[0], "Connection test failed: "+err.Error())
-		} else {
-			t.statusLabel.SetText("✓ Connection successful!")
-			ShowSuccessDialog(fyne.CurrentApp().Driver().AllWindows()[0], "Server is reachable!")
-		}
+		fyne.Do(func() {
+			if err != nil {
+				log.Error().Err(err).Msg("Health check failed")
+				t.statusLabel.SetText("✗ Connection failed: " + err.Error())
+				ShowErrorDialog(fyne.CurrentApp().Driver().AllWindows()[0], "Connection test failed: "+err.Error())
+			} else {
+				t.statusLabel.SetText("✓ Connection successful!")
+				ShowSuccessDialog(fyne.CurrentApp().Driver().AllWindows()[0], "Server is reachable!")
+			}
 
-		t.testBtn.Enable()
-		t.testBtn.SetText("Test Connection")
+			t.testBtn.Enable()
+			t.testBtn.SetText("Test Connection")
+		})
 	}()
 }

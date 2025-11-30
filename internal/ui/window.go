@@ -25,7 +25,7 @@ func NewMainWindow(app fyne.App) *MainWindow {
 	}
 
 	w.setupUI()
-	w.window.Resize(fyne.NewSize(800, 600))
+	w.window.Resize(fyne.NewSize(450, 500))
 	w.window.CenterOnScreen()
 
 	return w

@@ -17,10 +17,11 @@ type URLHistoryItem struct {
 }
 
 type HistoryTab struct {
-	client     *APIClient
-	history    []URLHistoryItem
-	list       *widget.List
-	emptyLabel *widget.Label
+	client           *APIClient
+	history          []URLHistoryItem
+	list             *widget.List
+	emptyLabel       *widget.Label
+	contentContainer *fyne.Container
 }
 
 func NewHistoryTab(client *APIClient) *HistoryTab {
@@ -36,20 +37,22 @@ func (t *HistoryTab) Build() fyne.CanvasObject {
 	t.emptyLabel = t.createEmptyLabel()
 	toolbar := t.createToolbar()
 
-	content := container.NewBorder(
-		container.NewVBox(
-			widget.NewCard("URL History", "List of all created short URLs in this session", toolbar),
-		),
-		nil, nil, nil,
-		container.NewStack(
-			t.list,
-			container.NewCenter(t.emptyLabel),
-		),
-	)
-
+	t.contentContainer = container.NewStack()
 	t.updateVisibility()
 
-	return container.NewPadded(content)
+	header := container.NewVBox(
+		widget.NewLabelWithStyle("URL History", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		widget.NewLabel("List of all created short URLs in this session"),
+		toolbar,
+		widget.NewSeparator(),
+	)
+
+	content := container.NewVBox(
+		header,
+		t.contentContainer,
+	)
+
+	return content
 }
 
 // AddItem adds a new URL history item to the list.
@@ -168,7 +171,7 @@ func (t *HistoryTab) createToolbar() *fyne.Container {
 // createEmptyLabel creates the label displayed when history is empty.
 func (t *HistoryTab) createEmptyLabel() *widget.Label {
 	emptyLabel := widget.NewLabel("No URLs in history yet. Create some short URLs to see them here!")
-	emptyLabel.Wrapping = fyne.TextWrapWord
+	emptyLabel.Wrapping = fyne.TextWrapOff
 	emptyLabel.Alignment = fyne.TextAlignCenter
 
 	return emptyLabel
@@ -200,10 +203,9 @@ func (t *HistoryTab) handleClear() {
 // updateVisibility updates the visibility of the list and empty label.
 func (t *HistoryTab) updateVisibility() {
 	if len(t.history) == 0 {
-		t.list.Hide()
-		t.emptyLabel.Show()
+		t.contentContainer.Objects = []fyne.CanvasObject{container.NewCenter(t.emptyLabel)}
 	} else {
-		t.list.Show()
-		t.emptyLabel.Hide()
+		t.contentContainer.Objects = []fyne.CanvasObject{t.list}
 	}
+	t.contentContainer.Refresh()
 }

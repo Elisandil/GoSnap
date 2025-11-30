@@ -23,7 +23,10 @@ import (
 func main() {
 
 	if err := godotenv.Load(); err != nil {
-		log.Warn().Msg("no .env file found, relying on environment variables")
+
+		if err := godotenv.Load("../../.env"); err != nil {
+			log.Warn().Msg("no .env file found, relying on environment variables")
+		}
 	}
 
 	logLevel := getEnv("LOG_LEVEL")
