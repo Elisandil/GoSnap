@@ -17,16 +17,16 @@ import (
 
 type mockPostgresRepo struct {
 	nextID              int64
-	createFunc          func(ctx context.Context, shortCode, longURL string) (*domain.URL, error)
+	createFunc          func(ctx context.Context, id int64, shortCode, longURL string) (*domain.URL, error)
 	getByShortCodeFunc  func(ctx context.Context, shortCode string) (*domain.URL, error)
 	incrementClicksFunc func(ctx context.Context, shortCode string) error
 	getNextIDFunc       func(ctx context.Context) (int64, error)
 }
 
-func (m *mockPostgresRepo) Create(ctx context.Context, shortCode, longURL string) (*domain.URL, error) {
+func (m *mockPostgresRepo) Create(ctx context.Context, id int64, shortCode, longURL string) (*domain.URL, error) {
 
 	if m.createFunc != nil {
-		return m.createFunc(ctx, shortCode, longURL)
+		return m.createFunc(ctx, id, shortCode, longURL)
 	}
 
 	return &domain.URL{
@@ -228,7 +228,7 @@ func TestShortenerService_CreateShortURL_Collisions(t *testing.T) {
 			attempts := 0
 			mockPg := &mockPostgresRepo{
 				nextID: 0,
-				createFunc: func(ctx context.Context, shortCode, longURL string) (*domain.URL, error) {
+				createFunc: func(ctx context.Context, id int64, shortCode, longURL string) (*domain.URL, error) {
 					attempts++
 					if attempts <= tt.collisions {
 						return nil, repo.ErrAlreadyExists
