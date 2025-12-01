@@ -39,8 +39,6 @@ GoSnap follows a clean architecture pattern with clear separation of concerns:
 
 ## Screenshots
 
-> **Note**: Add screenshots to the `screenshots/` folder and update this section
-
 ### Desktop Application
 
 ![Main Interface](screenshots/main-interface.png)
