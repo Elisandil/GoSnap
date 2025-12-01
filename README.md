@@ -227,18 +227,6 @@ docker-compose up -d postgres-test redis-test
 go test ./internal/integration/...
 ```
 
-### Project Structure
-
-- **cmd/**: Application entry points (server, desktop)
-- **internal/api/**: HTTP handlers, routes, and middleware
-- **internal/domain/**: Domain models and DTOs
-- **internal/repo/**: Database repositories (PostgreSQL, Redis)
-- **internal/service/**: Business logic layer
-- **internal/shortid/**: Short code generation algorithm
-- **internal/ui/**: Desktop GUI components
-- **pkg/validator/**: Input validation utilities
-- **resources/**: SQL initialization scripts
-
 ### Key Components
 
 **Short Code Generation**
@@ -264,10 +252,6 @@ go test ./internal/integration/...
 - **Concurrency**: Built-in connection pooling
 - **Scalability**: Horizontal scaling ready
 
-## License
-
-This project is licensed under the MIT License.
-
 ## Author
 
 **aog-dev**
@@ -280,5 +264,3 @@ This project is licensed under the MIT License.
 - Logging with [zerolog](https://github.com/rs/zerolog)
 - Database access via [pgx](https://github.com/jackc/pgx)
 - Redis client: [go-redis](https://github.com/redis/go-redis)
-
----
