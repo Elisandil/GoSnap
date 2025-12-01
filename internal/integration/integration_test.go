@@ -35,7 +35,7 @@ func setupTestEnvironment(t *testing.T) {
 
 	pgConnStr := os.Getenv("TEST_POSTGRES_URL")
 	if pgConnStr == "" {
-		pgConnStr = "postgres://postgres:postgres@localhost:5432/urlshortener_test?sslmode=disable"
+		pgConnStr = "postgres://postgres:postgres@localhost:5433/urlshortener_test?sslmode=disable"
 	}
 
 	var err error
@@ -50,7 +50,7 @@ func setupTestEnvironment(t *testing.T) {
 
 	redisAddr := os.Getenv("TEST_REDIS_ADDR")
 	if redisAddr == "" {
-		redisAddr = "localhost:6379"
+		redisAddr = "localhost:6380"
 	}
 
 	testRedisClient = redis.NewClient(&redis.Options{
