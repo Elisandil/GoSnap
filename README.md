@@ -44,17 +44,21 @@ GoSnap follows a clean architecture pattern with clear separation of concerns:
 ### Desktop Application
 
 ![Main Interface](screenshots/main-interface.png)
+
 *Create short URLs with the desktop client*
 
 ![Url Shortened](screenshots/url-shortened.png)
+
 *Short URL created successfully*
 
 ![Statistics View](screenshots/stats-view.png)
+
 *Track URL clicks and analytics*
 
 ### API Response Example
 
 ![API Response](screenshots/api-response.png)
+
 *REST API JSON response*
 
 
