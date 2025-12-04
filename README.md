@@ -1,9 +1,23 @@
+<div align="center">
+  <img src="screenshots/Logo.png" alt="GoSnap Logo" width="100%">
+</div>
+
 # GoSnap
 
 A high-performance URL shortener built with Go, featuring both a REST API server and a desktop client with a modern GUI.
 
 ![Go Version](https://img.shields.io/badge/Go-1.24.3-00ADD8?logo=go)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+## About the Project
+
+This project was born out of a desire to master **Go** and **Clean Architecture** patterns in a real-world scenario. I wanted to build something more complex than a simple CRUD API—a system that handles high-concurrency (URL redirection), state management (Desktop GUI), and infrastructure orchestration (Docker).
+
+**Key Learning Outcomes:**
+- Implementing **Clean Architecture** to decouple business logic from external frameworks.
+- Managing high-performance data access with **Redis** caching strategies.
+- Building cross-platform desktop interfaces using **Fyne**.
+- Containerizing a full-stack application with **Docker Compose**.
 
 ## Features
 
@@ -36,6 +50,13 @@ GoSnap follows a clean architecture pattern with clear separation of concerns:
 │   └── validator/    # URL and short code validation
 └── resources/        # Database initialization scripts
 ```
+
+### Design Decisions
+
+- **Redis for Caching**: Chosen to ensure sub-millisecond response times for frequently accessed URLs, reducing load on PostgreSQL.
+- **Hexagonal Architecture**: The `internal` directory structure ensures that the core domain logic remains independent of the database or HTTP framework, making the code testable and maintainable.
+- **Fyne for Desktop**: Selected for its ability to compile to native binaries for Windows, macOS, and Linux from a single Go codebase.
+
 
 ## Screenshots
 
@@ -253,6 +274,13 @@ go test ./internal/integration/...
 - **Concurrency**: Built-in connection pooling
 - **Scalability**: Horizontal scaling ready
 
+## Roadmap
+
+- [ ] **User Accounts**: Authentication and personalized dashboard.
+- [ ] **Custom Aliases**: Allow users to define their own short codes (e.g., `gosnap.com/my-link`).
+- [ ] **QR Code Generation**: Auto-generate QR codes for shortened URLs.
+- [ ] **Advanced Analytics**: Geolocation and device type tracking.
+
 ## Author
 
 **aog-dev**
@@ -265,3 +293,13 @@ go test ./internal/integration/...
 - Logging with [zerolog](https://github.com/rs/zerolog)
 - Database access via [pgx](https://github.com/jackc/pgx)
 - Redis client: [go-redis](https://github.com/redis/go-redis)
+
+## 🤝 Contributing
+
+Contributions are welcome! This is a personal project for learning, but I'm open to feedback and improvements.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
