@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
-	"github.com/Elisandil/GoSnap/pkg/validator"
+	"github.com/Elisandil/go-snap/internal/domain"
+	"github.com/Elisandil/go-snap/pkg/validator"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

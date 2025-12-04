@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/repo"
-	"github.com/Elisandil/GoSnap/internal/service"
-	"github.com/Elisandil/GoSnap/internal/shortid"
+	"github.com/Elisandil/go-snap/internal/repo"
+	"github.com/Elisandil/go-snap/internal/service"
+	"github.com/Elisandil/go-snap/internal/shortid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )

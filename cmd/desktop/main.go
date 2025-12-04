@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2/app"
-	"github.com/Elisandil/GoSnap/internal/ui"
+	"github.com/Elisandil/go-snap/internal/ui"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

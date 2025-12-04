@@ -18,10 +18,15 @@ type MainWindow struct {
 }
 
 func NewMainWindow(app fyne.App) *MainWindow {
+	return NewMainWindowWithClient(app, NewAPIClient("http://localhost:8080"))
+}
+
+// NewMainWindowWithClient creates a new main window with a custom API client.
+func NewMainWindowWithClient(app fyne.App, client *APIClient) *MainWindow {
 	w := &MainWindow{
 		app:    app,
 		window: app.NewWindow("GoSnap - URL Shortener"),
-		client: NewAPIClient("http://localhost:8080"),
+		client: client,
 	}
 
 	w.setupUI()

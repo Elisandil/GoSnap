@@ -93,8 +93,8 @@ GoSnap follows a clean architecture pattern with clear separation of concerns:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Elisandil/GoSnap.git
-cd GoSnap
+git clone https://github.com/Elisandil/go-snap.git
+cd go-snap
 ```
 
 ### 2. Set Up Environment Variables

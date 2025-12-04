@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
-	"github.com/Elisandil/GoSnap/internal/repo"
-	"github.com/Elisandil/GoSnap/internal/shortid"
-	"github.com/Elisandil/GoSnap/pkg/validator"
+	"github.com/Elisandil/go-snap/internal/domain"
+	"github.com/Elisandil/go-snap/internal/repo"
+	"github.com/Elisandil/go-snap/internal/shortid"
+	"github.com/Elisandil/go-snap/pkg/validator"
 	"github.com/rs/zerolog/log"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
+	"github.com/Elisandil/go-snap/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
-	"github.com/Elisandil/GoSnap/internal/repo"
-	"github.com/Elisandil/GoSnap/internal/shortid"
+	"github.com/Elisandil/go-snap/internal/domain"
+	"github.com/Elisandil/go-snap/internal/repo"
+	"github.com/Elisandil/go-snap/internal/shortid"
 )
 
 // ------------------------------------------------------------------------------------------

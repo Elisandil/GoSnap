@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
+	"github.com/Elisandil/go-snap/internal/domain"
 )
 
 type APIClient struct {

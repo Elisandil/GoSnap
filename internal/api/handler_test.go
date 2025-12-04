@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Elisandil/GoSnap/internal/domain"
+	"github.com/Elisandil/go-snap/internal/domain"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )

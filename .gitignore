@@ -32,3 +32,6 @@ pids
 
 # env files
 .env
+
+
+/bin
