@@ -115,6 +115,7 @@ func (t *CreateTab) handleShorten() {
 		fyne.Do(func() {
 			t.shortURLLabel.SetText(result.ShortURL)
 			t.resultCard.Show()
+			t.urlEntry.SetText("")
 			if t.onCreated != nil {
 				t.onCreated(result.ShortCode)
 			}
