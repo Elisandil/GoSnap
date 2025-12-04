@@ -1,4 +1,4 @@
-module github.com/Elisandil/GoSnap
+module github.com/Elisandil/go-snap
 
 go 1.24.3
 
