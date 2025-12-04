@@ -31,17 +31,19 @@ func NewPostgresRepo(pool *pgxpool.Pool) *PostgresRepo {
 }
 
 // Create inserts a new URL mapping into the database.
+// Use DEFAULT for id to auto-generate it.
+// The id parameter is kept for compatibility but is not used.
 func (r *PostgresRepo) Create(ctx context.Context, id int64, shortCode, longURL string) (*domain.URL, error) {
 
 	if !validator.IsValidShortCode(shortCode) {
 		return nil, ErrInvalidShortCode
 	}
 	query := `INSERT INTO urls (id, short_code, long_url, created_at, clicks) 
-				VALUES ($1, $2, $3, $4, 0) 
-				RETURNING id, short_code, long_url, created_at, clicks`
+			VALUES (DEFAULT, $1, $2, $3, 0) 
+			RETURNING id, short_code, long_url, created_at, clicks`
 
 	var url domain.URL
-	err := r.pool.QueryRow(ctx, query, id, shortCode, longURL, time.Now()).
+	err := r.pool.QueryRow(ctx, query, shortCode, longURL, time.Now()).
 		Scan(&url.ID, &url.ShortCode, &url.LongURL, &url.CreatedAt, &url.Clicks)
 
 	if err != nil {

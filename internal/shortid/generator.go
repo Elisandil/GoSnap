@@ -1,7 +1,9 @@
 package shortid
 
 import (
+	"crypto/rand"
 	"math"
+	"math/big"
 	"strings"
 )
 
@@ -56,4 +58,22 @@ func (g *Generator) Decode(encoded string) int64 {
 		number += int64(index) * int64(math.Pow(float64(g.base), float64(power)))
 	}
 	return number
+}
+
+// GenerateRandom generates a random 6-character short code using base62 encoding.
+// It uses crypto/rand for cryptographically secure random generation.
+// Returns a string of exactly 6 characters using [0-9A-Za-z].
+func (g *Generator) GenerateRandom() (string, error) {
+	const codeLength = 6
+	result := make([]byte, codeLength)
+
+	for i := 0; i < codeLength; i++ {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(g.base)))
+		if err != nil {
+			return "", err
+		}
+		result[i] = base62Chars[randomIndex.Int64()]
+	}
+
+	return string(result), nil
 }

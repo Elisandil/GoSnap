@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	MinShortCodeLength = 1
-	MaxShortCodeLength = 10
+	MinShortCodeLength      = 1
+	MaxShortCodeLength      = 10
+	StandardShortCodeLength = 6
 )
 
 var validShortCodeRegex = regexp.MustCompile(`^[0-9A-Za-z]+$`)

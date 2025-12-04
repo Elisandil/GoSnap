@@ -54,7 +54,7 @@ func NewShortenerService(pgRepo PostgresRepository,
 		redisRepo:    redisRepo,
 		generator:    generator,
 		baseURL:      baseURL,
-		maxRetries:   3,
+		maxRetries:   5,
 		clickWorkers: make(chan struct{}, 100),
 	}
 }
@@ -136,9 +136,10 @@ func (s *ShortenerService) GetURLStats(ctx context.Context, shortCode string) (*
 // ----------------------------------------------------------------------------------------
 
 // createShortURLWithRetries attempts to create a short URL for the given long URL.
-// It retries the operation up to maxRetries times in case of collisions.
+// It generates a random 6-character code and retries up to maxRetries times in case of collisions.
+// The database will auto-generate the ID via the sequence.
 // If the long URL is invalid, it returns an error.
-// If a collision occurs, it logs a warning and retries.
+// If a collision occurs, it logs a warning and retries with a new random code.
 // If the maximum number of retries is reached, it returns an error.
 // On success, it returns a CreateURLResponse containing the short code, short URL, and long URL.
 func (s *ShortenerService) createShortURLWithRetries(ctx context.Context,
@@ -154,15 +155,14 @@ func (s *ShortenerService) createShortURLWithRetries(ctx context.Context,
 		return nil, fmt.Errorf("invalid URL: %s", longURL)
 	}
 
-	id, err := s.pgRepo.GetNextID(ctx)
+	shortCode, err := s.generator.GenerateRandom()
 	if err != nil {
-		log.Error().Err(err).Msg("error getting next ID")
+		log.Error().Err(err).Msg("error generating random short code")
+
 		return nil, fmt.Errorf("error generating short code")
 	}
 
-	shortCode := s.generator.Encode(id)
-
-	url, err := s.pgRepo.Create(ctx, id, shortCode, longURL)
+	url, err := s.pgRepo.Create(ctx, 0, shortCode, longURL)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			log.Warn().Str("short_code", shortCode).Msg("collision detected, retrying")

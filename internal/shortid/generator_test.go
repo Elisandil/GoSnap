@@ -153,3 +153,66 @@ func BenchmarkGenerator_Decode(b *testing.B) {
 		g.Decode(encoded)
 	}
 }
+
+func TestGenerator_GenerateRandom(t *testing.T) {
+	g := NewGenerator()
+
+	t.Run("generates 6 character code", func(t *testing.T) {
+		code, err := g.GenerateRandom()
+		if err != nil {
+			t.Fatalf("GenerateRandom() returned error: %v", err)
+		}
+		if len(code) != 6 {
+			t.Errorf("GenerateRandom() generated code with length %d; want 6", len(code))
+		}
+	})
+
+	t.Run("uses only valid base62 characters", func(t *testing.T) {
+		code, err := g.GenerateRandom()
+		if err != nil {
+			t.Fatalf("GenerateRandom() returned error: %v", err)
+		}
+		for _, char := range code {
+			if !isValidBase62Char(char) {
+				t.Errorf("GenerateRandom() generated code with invalid character: %c", char)
+			}
+		}
+	})
+
+	t.Run("generates unique codes", func(t *testing.T) {
+		seen := make(map[string]bool)
+		iterations := 1000
+
+		for i := 0; i < iterations; i++ {
+			code, err := g.GenerateRandom()
+			if err != nil {
+				t.Fatalf("GenerateRandom() returned error on iteration %d: %v", i, err)
+			}
+			if seen[code] {
+				t.Errorf("GenerateRandom() generated duplicate code: %s", code)
+			}
+			seen[code] = true
+		}
+	})
+}
+
+// -------------------------------------------------------------
+//							BENCHMARKS
+// -------------------------------------------------------------
+
+func BenchmarkGenerator_GenerateRandom(b *testing.B) {
+	g := NewGenerator()
+	for i := 0; i < b.N; i++ {
+		_, _ = g.GenerateRandom()
+	}
+}
+
+// -------------------------------------------------------------
+//							HELPERS
+// -------------------------------------------------------------
+
+func isValidBase62Char(char rune) bool {
+	return (char >= '0' && char <= '9') ||
+		(char >= 'A' && char <= 'Z') ||
+		(char >= 'a' && char <= 'z')
+}

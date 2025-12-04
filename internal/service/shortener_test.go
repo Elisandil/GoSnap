@@ -154,8 +154,8 @@ func TestShortenerService_CreateShortURL(t *testing.T) {
 			name:    "database error",
 			longURL: "https://example.com",
 			mockPg: &mockPostgresRepo{
-				getNextIDFunc: func(ctx context.Context) (int64, error) {
-					return 0, errors.New("database error")
+				createFunc: func(ctx context.Context, id int64, shortCode, longURL string) (*domain.URL, error) {
+					return nil, errors.New("database error")
 				},
 			},
 			mockRedis:     &mockRedisRepo{},
