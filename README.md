@@ -82,6 +82,7 @@ Copy the template and configure your environment:
 
 ```bash
 cp .env.template .env
+mkdir bin
 ```
 
 Edit `.env` with your preferred settings. Default configuration works out of the box.
